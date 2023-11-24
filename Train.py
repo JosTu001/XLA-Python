@@ -7,9 +7,11 @@ MIN_CONTOUR_AREA = 40
 RESIZED_IMAGE_WIDTH = 20
 RESIZED_IMAGE_HEIGHT = 30
 
+# image_path = sys.argv[1]
+
 def main():
     # đọc ảnh train
-    imgTrainingNumbers = cv2.imread("bs.jpg")
+    imgTrainingNumbers = cv2.imread("train.py")
     # chuyển sang ảnh xám
     imgGray = cv2.cvtColor(imgTrainingNumbers, cv2.COLOR_BGR2GRAY)
     imgBlurred = cv2.GaussianBlur(imgGray, (5, 5), 0)  # blur
@@ -94,8 +96,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
 

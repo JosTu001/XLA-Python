@@ -76,7 +76,8 @@ class MainWindow(QtWidgets.QFrame, layout_image.Ui_Frame):
         kernel = np.ones((3, 3), np.uint8)
         dilated_image = cv2.dilate(canny_image, kernel, iterations=1)  # tăng sharp cho egde (Phép nở)
         # vẽ contour và lọc biển số
-        new, contours, hierarchy = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # new, contours, hierarchy = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
 
         screenCnt = []
@@ -140,7 +141,8 @@ class MainWindow(QtWidgets.QFrame, layout_image.Ui_Frame):
                 #Tiền xử lý ảnh đề phân đoạn kí tự
                 kerel3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
                 thre_mor = cv2.morphologyEx(imgThresh, cv2.MORPH_DILATE, kerel3)
-                _, cont, hier = cv2.findContours(thre_mor, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                # _, cont, hier = cv2.findContours(thre_mor, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours, _ = cv2.findContours(thre_mor, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 #Lọc vùng kí tự
                 char_x_ind = {}
@@ -148,8 +150,8 @@ class MainWindow(QtWidgets.QFrame, layout_image.Ui_Frame):
                 height, width, _ = roi.shape
                 roiarea = height * width
 
-                for ind, cnt in enumerate(cont):
-                    (x, y, w, h) = cv2.boundingRect(cont[ind])
+                for ind, cnt in enumerate(contours):
+                    (x, y, w, h) = cv2.boundingRect(contours[ind])
                     ratiochar = w / h
                     char_area = w * h
 
@@ -164,7 +166,7 @@ class MainWindow(QtWidgets.QFrame, layout_image.Ui_Frame):
                 second_line = ""
 
                 for i in char_x:
-                    (x, y, w, h) = cv2.boundingRect(cont[char_x_ind[i]])
+                    (x, y, w, h) = cv2.boundingRect(contours[char_x_ind[i]])
                     cv2.rectangle(roi, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
                     imgROI = thre_mor[y:y + h, x:x + w]  # cắt kí tự ra khỏi hình
@@ -205,8 +207,10 @@ class MainWindow(QtWidgets.QFrame, layout_image.Ui_Frame):
                 break
     def info(self, text):
         in4 = self.let_bienso.text()
-        in5 = int(in4[0:2])
-        self.let_ten.setText('Hoàng Lê Thiện An')
+        if len(in4) >= 2:
+            in5 = int(in4[0:2])
+        # in5 = int(in4[0:2])
+        self.let_ten.setText('Nhóm 02')
         lang = {
             11: 'Cao Bằng', 12: 'Lạng Sơn', 14: 'Quảng Ninh', 15: 'Hải Phòng', 17: 'Thái Bình', 18: 'Nam Định',
             19: 'Phú Thọ', 20: 'Thái Nguyên', 21: 'Yên Bái', 22: 'Tuyên Quang', 23: 'Hà Giang', 24: 'Lao Cai',
@@ -226,9 +230,12 @@ class MainWindow(QtWidgets.QFrame, layout_image.Ui_Frame):
             93: 'Bình Phước', 94: 'Bạc Liêu', 95: 'Hậu Giang', 97: 'Bắc Cạn', 98: 'Bắc Giang', 99: 'Bắc Ninh',
         }
 
+        # in5 = None
         for name, code in lang.items():
             if in5 == name:
                 self.let_tinh.setText(code)
+        
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
